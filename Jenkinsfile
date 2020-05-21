@@ -1,0 +1,57 @@
+
+
+pipeline {
+   agent any
+
+   tools {
+      // Install the Maven version configured as "maven" and add it to the path.
+      maven "maven"
+      jdk "java"
+   }
+   
+   
+   options { 
+         buildDiscarder(logRotator(numToKeepStr: '2')) 
+   }
+   stages {
+   
+   stage('Clean'){
+     steps {
+	sh 'mvn clean';
+   }
+   
+   }
+   stage("Github code"){
+      // Get some code from a GitHub repository
+     steps {
+    git 'https://github.com/jedibig/docker-demo.git'
+    }
+	}
+	
+      stage('Build') {
+         steps {
+            // Run Maven on a Unix agent.
+            sh "mvn -Dmaven.test.failure.ignore=true package"
+
+            // To run Maven on a Windows agent, use
+            // bat "mvn -Dmaven.test.failure.ignore=true  package"
+         }
+
+         post {
+            // If Maven was able to run the tests, even if some of the test
+            // failed, record the test results and archive the jar file.
+            success {
+               junit '**/target/surefire-reports/TEST-*.xml'
+               archiveArtifacts 'target/*.war'
+            }
+         }
+      }
+      
+      stage("Deploy"){
+      
+     steps {
+    	mvn deploy -Ddocker-tag=${version} -Dpassword=${password}
+    }
+	}
+   }
+}
