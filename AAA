@@ -50,7 +50,7 @@ pipeline {
       stage("Deploy"){
       
      steps {
-    	mvn deploy -Ddocker-tag=${version} -Dpassword=${password}
+    	sh 'mvn deploy -Ddocker-tag=1 -Dpassword=${password}'
     }
 	}
    }
