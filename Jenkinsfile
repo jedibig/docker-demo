@@ -19,7 +19,7 @@ pipeline {
       agent any
       environment {
         dockertag = '3'
-        password = 'dockerP4ssword!'
+        password = ''
       }
       steps {
         sh 'sh \'mvn deploy -Ddocker-tag={dockertag} -Dpassword=${password}\''
